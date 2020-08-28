@@ -12,20 +12,36 @@ class ApplicationController < Sinatra::Base
 		erb :index
 	end
 
-	get "/signup" do
+  get "/signup" do
 		erb :signup
 	end
 
-	post "/signup" do
-		#your code here!
-	end
+  post "/signup" do
+    # Create a new ActiveRecord object using params submitted by Sinatra
+    user = User.new(:username => params[:username], :password => params[:password])
+
+    # user.save returns either true or false if the above user is filled out or not
+    # We can use this literally as a condition instead of just erroring out
+    if user.save
+      redirect "/login"
+    else
+      redirect "/failure"
+    end
+  end
 
 	get "/login" do
 		erb :login
 	end
 
 	post "/login" do
-		#your code here!
+    user = User.find_by(:username => params[:username])
+
+    if user && user.authenticate(params[:password])
+      session[:user_id] = user.id
+      redirect "/success"
+    else
+      redirect "/failure"
+    end
 	end
 
 	get "/success" do
